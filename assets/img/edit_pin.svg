@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="22" height="22" viewBox="0 0 22 22">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.5" y1="0.5" x2="1.128" y2="1.085" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#43a0e7"/>
+      <stop offset="1" stop-color="#00ffdb"/>
+    </linearGradient>
+  </defs>
+  <g id="edit_pin" transform="translate(-316 -120)">
+    <path id="Path_234" data-name="Path 234" d="M11,0A11,11,0,1,1,0,11,11,11,0,0,1,11,0Z" transform="translate(316 120)" fill="url(#linear-gradient)"/>
+    <g id="Iconly_Light-outline_Edit" data-name="Iconly/Light-outline/Edit" transform="translate(319 122.5)">
+      <g id="Edit" transform="translate(3 3.5)">
+        <path id="Edit-2" data-name="Edit" d="M6.249,10.146A.385.385,0,0,1,6.2,9.379l.053,0h4.1a.385.385,0,0,1,.054.767l-.054,0Zm-5.856,0a.393.393,0,0,1-.284-.119A.376.376,0,0,1,0,9.751L.06,7.4A1.71,1.71,0,0,1,.578,6.216L6.362.547a1.934,1.934,0,0,1,2.695,0l.772.757a1.843,1.843,0,0,1,0,2.642L4.023,9.638a1.779,1.779,0,0,1-1.252.508Zm.741-3.385a.953.953,0,0,0-.288.658L.8,9.375H2.771A1,1,0,0,0,3.4,9.15l.064-.057,4.8-4.707L5.913,2.077Zm7.691-2.92.449-.44a1.083,1.083,0,0,0,0-1.552L8.5,1.092a1.135,1.135,0,0,0-1.584,0l-.449.44Z" transform="translate(0)" fill="#fff"/>
+      </g>
+    </g>
+  </g>
+</svg>

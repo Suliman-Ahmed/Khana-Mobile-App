@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="42" height="42" viewBox="0 0 42 42">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.343" y1="0.378" x2="1.064" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#c1bcfd"/>
+      <stop offset="1" stop-color="#3589e0"/>
+    </linearGradient>
+  </defs>
+  <g id="money" transform="translate(-19 -108)">
+    <circle id="Ellipse_26" data-name="Ellipse 26" cx="21" cy="21" r="21" transform="translate(19 108)" fill="url(#linear-gradient)"/>
+    <g id="Filter" transform="translate(28.596 118.168)">
+      <path id="Stroke_5" data-name="Stroke 5" d="M-1.121,3.494V-1.342" transform="translate(12.381 3.174)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.5"/>
+      <path id="Stroke_5-2" data-name="Stroke 5" d="M-1.121,2.751V-1.342" transform="translate(12.381 17.081)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.5"/>
+      <path id="Path_198" data-name="Path 198" d="M37.152,136.911s10.339.726,9.979-2.675-9.083-2.363-10.578-7.089,8.808-3.423,8.808-3.423" transform="translate(-30 -119.404)" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="1.5"/>
+    </g>
+  </g>
+</svg>

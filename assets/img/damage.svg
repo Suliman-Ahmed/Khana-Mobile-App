@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="42" height="42" viewBox="0 0 42 42">
+  <defs>
+    <linearGradient id="linear-gradient" x1="1" y1="0.889" x2="0.3" y2="0.378" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#fd79a8"/>
+      <stop offset="1" stop-color="#fab1a0"/>
+    </linearGradient>
+  </defs>
+  <g id="damage" transform="translate(-19 -201)">
+    <circle id="Ellipse_27" data-name="Ellipse 27" cx="21" cy="21" r="21" transform="translate(19 201)" fill="url(#linear-gradient)"/>
+    <g id="Iconly_Broken_Delete" data-name="Iconly/Broken/Delete" transform="translate(28 210.904)">
+      <g id="Delete" transform="translate(4 2.096)">
+        <path id="Delete-2" data-name="Delete" d="M8.272,18a.658.658,0,0,1,0-1.316h0c1.366,0,1.857-.007,3.225-.032a1.345,1.345,0,0,0,1.447-1.374c.273-2.521.748-8.554.752-8.614a.642.642,0,1,1,1.28.106c0,.06-.48,6.113-.756,8.652a2.625,2.625,0,0,1-2.7,2.545c-1.158.022-1.437.033-2.6.033Zm-3.659-.036a2.623,2.623,0,0,1-2.639-2.535c-.277-2.561-.75-8.6-.755-8.659a.655.655,0,0,1,.588-.71.657.657,0,0,1,.692.605c0,.06.477,6.077.752,8.617a1.327,1.327,0,0,0,1.388,1.366.659.659,0,0,1-.013,1.316ZM.642,4.464a.659.659,0,0,1,0-1.317H3.516a.813.813,0,0,0,.791-.663l.214-1.1A1.791,1.791,0,0,1,6.239,0H9.961A1.779,1.779,0,0,1,11.67,1.345a.662.662,0,0,1-.454.808.641.641,0,0,1-.787-.467.488.488,0,0,0-.468-.368H6.239a.488.488,0,0,0-.468.368l-.2,1.055a2.247,2.247,0,0,1-.125.406H15.558a.659.659,0,0,1,0,1.317Z" fill="#fff"/>
+      </g>
+    </g>
+  </g>
+</svg>
