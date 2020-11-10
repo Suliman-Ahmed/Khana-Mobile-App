@@ -1,10 +1,14 @@
 // we use provider to manage the app state
 
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 // Provider finished
 class SettingsController extends GetxController {
@@ -24,8 +28,11 @@ class SettingsController extends GetxController {
   final _locale = Locale('en').obs;
 
   Locale get locale => _locale.value;
+
   bool get lang => _locale.value == Locale('ar');
+
   bool get isAndroid => GetPlatform.isAndroid;
+
   Color get PrimeColor => Color(0xFF3589E0);
 
   ThemeMode get themeMode => _themeMode.value;
@@ -96,6 +103,51 @@ class SettingsController extends GetxController {
   }
 
   //////////////////////////////////////////////////////////////////////////////
+  /// Storage Functions
+  void addItemToStorage(items) async {
+    await Permission.storage.request();
+
+    Directory path = await getApplicationDocumentsDirectory();
+    File file = File(path.path + "/khana_storage.json");
+
+    if (!file.existsSync()) {
+      file.create();
+      String data = '[]';
+      file.writeAsString(data);
+    }
+
+    try {
+      // file.open(mode: FileMode.write);
+      String data = await file.readAsString();
+      data = data.replaceAll(']', '${items.toString()},]');
+      file.writeAsString(data);
+      print(data);
+    } catch (e) {
+      print('can not write $e');
+    }
+  }
+
+  void reaItemsFromStorage() async {
+    await Permission.storage.request();
+    Directory path = await getApplicationDocumentsDirectory();
+    File file = File(path.path + "/khana_storage.json");
+    try {
+      file.open(mode: FileMode.read);
+      String data = await file.readAsString();
+      print(data);
+    } catch (e) {
+      print('Can not Read');
+    }
+  }
+
+  void cleanData() async {
+    await Permission.storage.request();
+    Directory path = await getApplicationDocumentsDirectory();
+    File file = File(path.path + "/khana_storage.json");
+    file.writeAsString('[]');
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
   /// Firebase Function
 
   //////////////////////////////////////////////////////////////////////////////
@@ -116,7 +168,7 @@ class SettingsController extends GetxController {
         elevation: 2,
         unselectedItemColor: const Color(0xffC5C3E3),
       ),
-      appBarTheme: AppBarTheme(color: Color(0xFFF9F9F9),centerTitle: true),
+      appBarTheme: AppBarTheme(color: Color(0xFFF9F9F9), centerTitle: true),
     );
   }
 }

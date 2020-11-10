@@ -25,6 +25,8 @@ dependencies:
   firebase_auth:
   cloud_firestore:
   # Localization
+  permission_handler: ^5.0.1
+  image_picker: ^0.6.6+5
   hive: ^1.4.3
   path_provider: ^1.6.5
   get: ^3.4.6
