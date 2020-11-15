@@ -9,6 +9,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:khana_mobile_application/UI/CustomColors.dart';
 import 'package:khana_mobile_application/Widgets/appbar.dart';
 import 'package:khana_mobile_application/controllers/theme_controller.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class AddItemPage extends StatefulWidget {
   @override
@@ -20,8 +22,9 @@ class _AddItemPageState extends State<AddItemPage> {
   TextEditingController _ItemName = TextEditingController();
   TextEditingController _ItemDescription = TextEditingController();
   int numberOfItem = 1;
-  int priceOfItem = 1;
+  int priceOfItem = 5;
   File _image;
+  Timer timer;
   final picker = ImagePicker();
 
   _imgFromGallery() async {
@@ -51,13 +54,7 @@ class _AddItemPageState extends State<AddItemPage> {
               //////////////////////////////////////////////////////////////////
               /// Clear Button
               Center(
-                child: CustomButton(
-                    icon: Feather.x,
-                    color: Color(0xFF999999),
-                    function: () {
-                      // TODO: Clear Function
-                      print("Clear Function");
-                    }),
+                child: clearButton(CustomColors.darkGray, Feather.x),
               ),
               SizedBox(height: 20),
               ////////////////////////////////////////////////////////////////
@@ -112,22 +109,14 @@ class _AddItemPageState extends State<AddItemPage> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             CustomButton(
-                                num: numberOfItem,
+                                num: true,
                                 icon: Feather.minus,
-                                color: Color(0xFFED6663),
-                                function: () {
-                                  // TODO: Minus Function
-                                  print('minus');
-                                }),
+                                color: CustomColors.red),
                             Text("$numberOfItem"),
                             CustomButton(
-                                num: numberOfItem,
+                                num: true,
                                 icon: Feather.plus,
-                                color: Color(0xFF2EC1AC),
-                                function: () {
-                                  // TODO: Minus Function
-                                  print('plus');
-                                }),
+                                color: CustomColors.green),
                           ]),
                     )
                   ]),
@@ -145,22 +134,14 @@ class _AddItemPageState extends State<AddItemPage> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               CustomButton(
-                                  num: priceOfItem,
+                                  num: false,
                                   icon: Feather.minus,
-                                  color: Color(0xFFED6663),
-                                  function: () {
-                                    // TODO: Minus Function
-                                    print('minus');
-                                  }),
+                                  color: CustomColors.red),
                               Text("$priceOfItem\$"),
                               CustomButton(
-                                  num: priceOfItem,
+                                  num: false,
                                   icon: Feather.plus,
-                                  color: Color(0xFF2EC1AC),
-                                  function: () {
-                                    // TODO: Minus Function
-                                    print('plus');
-                                  }),
+                                  color: CustomColors.green),
                             ]),
                       )
                     ],
@@ -183,16 +164,6 @@ class _AddItemPageState extends State<AddItemPage> {
                 ),
               ),
               //////////////////////////////////////////////////////////////////
-              _image != null
-                  ? Container(
-                      child: Image.file(
-                        _image,
-                        width: 220,
-                        height: 220,
-                      ),
-                    )
-                  : SizedBox(),
-              //////////////////////////////////////////////////////////////////
               /// Add Button
               Container(
                 width: double.infinity,
@@ -201,17 +172,39 @@ class _AddItemPageState extends State<AddItemPage> {
                     color: CustomColors.blue2,
                     borderRadius: BorderRadius.circular(10)),
                 child: FlatButton(
-                  onPressed: () {
-                    Map items = {
-                      'id': _ItemID.text,
-                      'name': _ItemName.text,
-                      'description': _ItemDescription.text,
-                      'numOfPieces': numberOfItem,
-                      'price': priceOfItem,
-                      'image': _image,
-                    };
+                  onPressed: () async {
+                    await Permission.storage.request();
 
-                    s.addItemToStorage(items);
+                    Directory path = await getApplicationDocumentsDirectory();
+                    File file = File(path.path + "/khana_storage.json");
+
+                    if (!file.existsSync()) {
+                      file.create();
+                      String data = '{\"data\": []}';
+                      file.writeAsString(data);
+                    }
+
+                    try {
+                      String data = await file.readAsString();
+                      if(!data.contains(_ItemID.text)){
+                        Map items = {
+                          '\"id\"': "\"${_ItemID.text.trim()}\"",
+                          '\"name\"': "\"${_ItemName.text.trim()}\"",
+                          '\"des\"': "\"${_ItemDescription.text.trim()}\"",
+                          '\"numOfPieces\"': numberOfItem,
+                          '\"numOfLeftPieces\"': numberOfItem,
+                          '\"price\"': priceOfItem,
+                          '\"image\"': _image != null ? "\"${_image.path}\"" : "\"\"",
+                        };
+                        s.addItemToStorage(items);
+                      }else{
+                        s.showToast('invalid ID');
+                      }
+                    } catch (e) {
+                      print('can not write $e');
+                    }
+
+
                   },
                   child: Text(
                     'Add Item',
@@ -220,26 +213,26 @@ class _AddItemPageState extends State<AddItemPage> {
                   ),
                 ),
               ),
-              //////////////////////////////////////////////////////////////////
-              /// read Button
-              Container(
-                width: double.infinity,
-                margin: EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                    color: CustomColors.whiteRed,
-                    borderRadius: BorderRadius.circular(10)),
-                child: FlatButton(
-                  onPressed: () {
-                    s.reaItemsFromStorage();
-                  },
-                  child: Text(
-                    'read Item',
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              //////////////////////////////////////////////////////////////////
+              // //////////////////////////////////////////////////////////////////
+              // /// read Button
+              // Container(
+              //   width: double.infinity,
+              //   margin: EdgeInsets.symmetric(horizontal: 20),
+              //   decoration: BoxDecoration(
+              //       color: CustomColors.whiteRed,
+              //       borderRadius: BorderRadius.circular(10)),
+              //   child: FlatButton(
+              //     onPressed: () {
+              //       s.reaItemsFromStorage();
+              //     },
+              //     child: Text(
+              //       'read Item',
+              //       style: TextStyle(
+              //           color: Colors.white, fontWeight: FontWeight.bold),
+              //     ),
+              //   ),
+              // ),
+              // //////////////////////////////////////////////////////////////////
               /// delete Button
               Container(
                 width: double.infinity,
@@ -265,45 +258,83 @@ class _AddItemPageState extends State<AddItemPage> {
     );
   }
 
-  CircleAvatar CustomButton({IconData icon, Color color, function, num}) {
-    Timer timer;
+  CircleAvatar CustomButton({IconData icon, Color color, bool num}) {
     return CircleAvatar(
-      backgroundColor: color,
-      child: GestureDetector(
-        onLongPress: () {
-          timer = Timer.periodic(Duration(milliseconds: 200), (timer) {
-            setState(() {
-              if (icon == Feather.minus) {
-                if (num > 0) {
-                  num--;
+        backgroundColor: color,
+        child: GestureDetector(
+            onTapDown: (TapDownDetails details) {
+              try {
+                timer = Timer.periodic(Duration(milliseconds: 100), (t) {
+                  setState(() {
+                    if (icon == Feather.plus) {
+                      if (num) {
+                        numberOfItem++;
+                      } else {
+                        priceOfItem++;
+                      }
+                    } else {
+                      if (num && numberOfItem > 0) {
+                        numberOfItem--;
+                      } else if (!num && priceOfItem > 0) {
+                        priceOfItem--;
+                      }
+                    }
+                  });
+                });
+              } catch (e) {
+                timer.cancel();
+              }
+            },
+            onTapUp: (TapUpDetails details) {
+              timer.cancel();
+            },
+            onTapCancel: () {
+              timer.cancel();
+            },
+            onTap: () {
+              setState(() {
+                if (icon == Feather.plus) {
+                  if (num) {
+                    numberOfItem++;
+                  } else {
+                    priceOfItem++;
+                  }
+                } else {
+                  if (num && numberOfItem > 0) {
+                    numberOfItem--;
+                  } else if (!num && priceOfItem > 0) {
+                    priceOfItem--;
+                  }
                 }
-              } else if (icon == Feather.plus) {
-                num++;
-              }
+              });
+            },
+            child: Icon(
+              icon,
+              color: CustomColors.white,
+              size: 20,
+            )));
+  }
+
+  CircleAvatar clearButton(Color color, IconData icon) {
+    return CircleAvatar(
+        backgroundColor: color,
+        child: InkWell(
+          onTap: (){
+            setState(() {
+              _ItemID.text = '';
+              _ItemName.text = '';
+              _ItemDescription.text = '';
+              numberOfItem = 1;
+              priceOfItem = 5;
+              _image = null;
             });
-          });
-        },
-        // onTapDown: (details) {
-        //   timer.cancel();
-        // },
-        // onTapCancel: () {
-        //   timer.cancel();
-        // },
-        onTap: () {
-          print('Tap');
-          setState(() {
-            if (icon == Feather.minus) {
-              if (priceOfItem > 0) {
-                priceOfItem--;
-              }
-            } else if (icon == Feather.plus) {
-              priceOfItem++;
-            }
-          });
-        },
-        child: Icon(icon, color: Colors.white, size: 20),
-      ),
-    );
+          },
+          child: Icon(
+            icon,
+            color: CustomColors.white,
+            size: 20,
+          ),
+        ));
   }
 
   Container textField({String hint, TextEditingController controller}) {

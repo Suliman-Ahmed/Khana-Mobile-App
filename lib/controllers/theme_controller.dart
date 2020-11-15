@@ -1,12 +1,15 @@
 // we use provider to manage the app state
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:khana_mobile_application/controllers/Item.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -112,14 +115,13 @@ class SettingsController extends GetxController {
 
     if (!file.existsSync()) {
       file.create();
-      String data = '[]';
+      String data = '{\"data\": []}';
       file.writeAsString(data);
     }
 
     try {
-      // file.open(mode: FileMode.write);
       String data = await file.readAsString();
-      data = data.replaceAll(']', '${items.toString()},]');
+      data = data.replaceAll(']', ',${items.toString()}]');
       file.writeAsString(data);
       print(data);
     } catch (e) {
@@ -127,24 +129,37 @@ class SettingsController extends GetxController {
     }
   }
 
-  void reaItemsFromStorage() async {
+  Future<List<dynamic>> reaItemsFromStorage() async {
+    List items = List();
     await Permission.storage.request();
     Directory path = await getApplicationDocumentsDirectory();
     File file = File(path.path + "/khana_storage.json");
     try {
       file.open(mode: FileMode.read);
       String data = await file.readAsString();
-      print(data);
+      data = data.replaceFirst(',', '');
+      var decodedJson = jsonDecode(data)['data'];
+      items = decodedJson != null ? List.from(decodedJson) : null;
+      print(items);
     } catch (e) {
-      print('Can not Read');
+      print('Can not Read $e');
+      items = [];
     }
+    return items;
   }
 
   void cleanData() async {
     await Permission.storage.request();
     Directory path = await getApplicationDocumentsDirectory();
     File file = File(path.path + "/khana_storage.json");
-    file.writeAsString('[]');
+    file.writeAsString('{\"data\": []}');
+  }
+
+  void showToast(msg){
+    Fluttertoast.showToast(
+        msg: msg,
+        toastLength: Toast.LENGTH_SHORT,
+    );
   }
 
   //////////////////////////////////////////////////////////////////////////////

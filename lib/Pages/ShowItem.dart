@@ -1,3 +1,6 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -12,55 +15,51 @@ class ShowItemsPage extends StatefulWidget {
 }
 
 class _ShowItemsPageState extends State<ShowItemsPage> {
+  List items = [];
 
-  List items = [
-    {
-      'name' : 'essence',
-      'id' : 'es001',
-      'des' : 'some text to describe the product',
-      'numOfTotalItem' : 20,
-      'numOfLeftItem' : 17,
-    },{
-      'name' : 'Oilli Bu',
-      'id' : 'bu002',
-      'des' : 'some text to describe the product',
-      'numOfTotalItem' : 30,
-      'numOfLeftItem' : 15,
-    },{
-      'name' : 'soub Bu',
-      'id' : 'bu052',
-      'des' : 'some text to describe the product',
-      'numOfTotalItem' : 50,
-      'numOfLeftItem' : 20,
-    },
-  ];
+  SettingsController settingsController = SettingsController();
+
+  fetchData() async {
+    items = await settingsController.reaItemsFromStorage();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchData();
+  }
+
   @override
   Widget build(BuildContext context) {
-
     return GetX<SettingsController>(
       init: SettingsController(),
       builder: (s) {
+        fetchData();
         bool lang = s.lang;
         return Scaffold(
-          appBar: appbar('Show Items', context),
-          body: SingleChildScrollView(
-            physics: BouncingScrollPhysics(),
-            child: Column(children: [
-              ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: items.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return CardBlock(index);
-                },
-              )
-            ]),
-          ),
-        );
+            appBar: appbar('Show Items', context),
+            body: FutureBuilder(
+              future: fetchData(),
+              builder: (BuildContext context, AsyncSnapshot snap) {
+                if (!(snap.data == null)) {
+                  return Center(
+                    child: Text("No Data"),
+                  );
+                }
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: BouncingScrollPhysics(),
+                  itemCount: items.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return CardBlock(index);
+                  },
+                );
+              },
+            ));
       },
     );
   }
-
 
   Widget CardBlock(index) {
     return Container(
@@ -77,12 +76,12 @@ class _ShowItemsPageState extends State<ShowItemsPage> {
           width: 60,
           height: 60,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5000),
-            image: DecorationImage(
-              image: AssetImage('assets/img/skeleton_flash.jpg'),
-              fit: BoxFit.cover
-            )
-          ),
+              borderRadius: BorderRadius.circular(5000),
+              image: DecorationImage(
+                  image: (items[index]['image'] != '')
+                      ? FileImage(File(items[index]['image']))
+                      : AssetImage('assets/img/skeleton_flash.jpg'),
+                  fit: BoxFit.cover)),
         ),
         ////////////////////////////////////////////////////////////////////////
         /// name, id, description and num of remaining items
@@ -94,8 +93,10 @@ class _ShowItemsPageState extends State<ShowItemsPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(items[index]['name'],
-                    style: TextStyle(color: CustomColors.black2,fontWeight: FontWeight.bold)),
-                Text(items[index]['id'],
+                    style: TextStyle(
+                        color: CustomColors.black2,
+                        fontWeight: FontWeight.bold)),
+                Text(items[index]['id'].toString(),
                     style: TextStyle(color: CustomColors.black2)),
               ],
             ),
@@ -108,9 +109,9 @@ class _ShowItemsPageState extends State<ShowItemsPage> {
             ////////////////////////////////////////////////////////////////////
             /// Indicator
             LinearPercentIndicator(
-              trailing: Text('${items[index]['numOfLeftItem']} / ${items[index]['numOfTotalItem']}'),
+              trailing: Text('${items[index]['numOfLeftPieces']} / ${items[index]['numOfPieces']}'),
               lineHeight: 10,
-              percent: items[index]['numOfLeftItem']/items[index]['numOfTotalItem'],
+              percent: items[index]['numOfLeftPieces'] / items[index]['numOfPieces'],
               backgroundColor: CustomColors.blue2,
               progressColor: CustomColors.white,
             ),
