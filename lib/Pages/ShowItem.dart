@@ -20,12 +20,11 @@ class _ShowItemsPageState extends State<ShowItemsPage> {
   SettingsController settingsController = SettingsController();
 
   fetchData() async {
-    items = await settingsController.reaItemsFromStorage();
+    items = await settingsController.readItemsFromStorage();
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     fetchData();
   }

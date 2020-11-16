@@ -1,9 +1,16 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:intl/intl.dart';
+
+
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get/get.dart';
 import 'package:khana_mobile_application/UI/CustomColors.dart';
 import 'package:khana_mobile_application/Widgets/appbar.dart';
 import 'package:khana_mobile_application/controllers/theme_controller.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class AddListPage extends StatefulWidget {
   @override
@@ -91,6 +98,8 @@ class _AddListPageState extends State<AddListPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        ////////////////////////////////////////////////////////
+                        /// Text Field
                         Expanded(
                             flex: 4,
                             child: itemTextField(
@@ -98,18 +107,22 @@ class _AddListPageState extends State<AddListPage> {
                                 controller: itemsID.length == 0
                                     ? _firstID
                                     : itemsID[index])),
+                        ////////////////////////////////////////////////////////
+                        /// Minus Button
                         Expanded(
                           child: CustomButton(
                               icon: Feather.minus,
                               color: CustomColors.red,
                               function: () {
                                 setState(() {
-                                  if (index > 0) {
+                                  if (index > -1 && itemsID.length != 0) {
                                     itemsID.removeAt(index);
                                   }
                                 });
                               }),
                         ),
+                        ////////////////////////////////////////////////////////
+                        /// Plus Button
                         (itemsID.length == 0)
                             ? Expanded(
                                 child: CustomButton(
@@ -121,12 +134,14 @@ class _AddListPageState extends State<AddListPage> {
                                             "Text = (${itemsID.length == 0 ? _firstID.text : itemsID[index].text})");
                                         TextEditingController item =
                                             TextEditingController();
-                                        itemsID.add(item);
+                                        itemsID.add(itemsID.length == 0
+                                            ? _firstID
+                                            : item);
                                       });
                                     }),
                               )
                             : SizedBox(),
-                        (index == itemsID.length-1)
+                        (index == itemsID.length - 1)
                             ? Expanded(
                                 child: CustomButton(
                                     icon: Feather.plus,
@@ -156,19 +171,102 @@ class _AddListPageState extends State<AddListPage> {
                     borderRadius: BorderRadius.circular(10)),
                 child: FlatButton(
                   /// TODO: Add List Function
-                  onPressed: () => print("Add List"),
+                  onPressed: () => addItemMethod(s),
                   child: Text(
                     'Add List',
                     style: TextStyle(
                         color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
-              )
+              ),
+              // //////////////////////////////////////////////////////////////////
+              // /// Read Button
+              // Container(
+              //   width: double.infinity,
+              //   decoration: BoxDecoration(
+              //       color: CustomColors.green,
+              //       borderRadius: BorderRadius.circular(10)),
+              //   child: FlatButton(
+              //     onPressed: () => s.readListItemsFromStorage(),
+              //     child: Text(
+              //       'Read List',
+              //       style: TextStyle(
+              //           color: Colors.white, fontWeight: FontWeight.bold),
+              //     ),
+              //   ),
+              // ),
+              // //////////////////////////////////////////////////////////////////
+              // /// Delete Button
+              // Container(
+              //   width: double.infinity,
+              //   decoration: BoxDecoration(
+              //       color: CustomColors.red,
+              //       borderRadius: BorderRadius.circular(10)),
+              //   child: FlatButton(
+              //     onPressed: () => s.cleanList(),
+              //     child: Text(
+              //       'Delete List',
+              //       style: TextStyle(
+              //           color: Colors.white, fontWeight: FontWeight.bold),
+              //     ),
+              //   ),
+              // ),
             ]),
           ),
         );
       },
     );
+  }
+
+  void addItemMethod(s) async {
+    final DateTime now = DateTime.now();
+    final DateFormat formatter = DateFormat('yyyy-MM-dd');
+    final String formatted = formatter.format(now);
+
+    await Permission.storage.request();
+
+    Directory path = await getApplicationDocumentsDirectory();
+    File file = File(path.path + "/khana_storage.json");
+
+    if (!file.existsSync()) {
+      file.create();
+      String data = '{\"data\": [],\"list\": []}';
+      file.writeAsString(data);
+    }
+
+    try {
+      String data = await file.readAsString();
+      data.replaceAll('[,', '[');
+      var decodedJson = json.decode(data)['data'];
+      print('Before add data');
+      if (!data.contains(_listID.text)) {
+        for (int i = 0; i < itemsID.length; i++) {
+          String decodeData = decodedJson.toString();
+          if (decodeData.contains(itemsID[i].text)) {
+            print(decodedJson);
+            List<String> itemsIDList = [];
+            for (var i in itemsID) {
+              itemsIDList.add(i.text);
+            }
+            print('adding data');
+            Map items = {
+              '\"id\"': "\"${_listID.text.trim()}\"",
+              '\"name\"': "\"${_listName.text.trim()}\"",
+              '\"location\"': "\"${_listLocation.text.trim()}\"",
+              '\"date\"': "\"$formatted\"",
+              '\"items\"': '\"${itemsIDList.toString()}\"',
+            };
+            // print(items);
+            print('Complete add data');
+            s.addListItemToStorage(items);
+          }
+        }
+      } else {
+        s.showToast('invalid ID');
+      }
+    } catch (e) {
+      print('can not write $e');
+    }
   }
 
   CircleAvatar CustomButton({IconData icon, Color color, function}) {

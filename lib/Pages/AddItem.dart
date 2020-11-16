@@ -172,39 +172,8 @@ class _AddItemPageState extends State<AddItemPage> {
                     color: CustomColors.blue2,
                     borderRadius: BorderRadius.circular(10)),
                 child: FlatButton(
-                  onPressed: () async {
-                    await Permission.storage.request();
-
-                    Directory path = await getApplicationDocumentsDirectory();
-                    File file = File(path.path + "/khana_storage.json");
-
-                    if (!file.existsSync()) {
-                      file.create();
-                      String data = '{\"data\": []}';
-                      file.writeAsString(data);
-                    }
-
-                    try {
-                      String data = await file.readAsString();
-                      if(!data.contains(_ItemID.text)){
-                        Map items = {
-                          '\"id\"': "\"${_ItemID.text.trim()}\"",
-                          '\"name\"': "\"${_ItemName.text.trim()}\"",
-                          '\"des\"': "\"${_ItemDescription.text.trim()}\"",
-                          '\"numOfPieces\"': numberOfItem,
-                          '\"numOfLeftPieces\"': numberOfItem,
-                          '\"price\"': priceOfItem,
-                          '\"image\"': _image != null ? "\"${_image.path}\"" : "\"\"",
-                        };
-                        s.addItemToStorage(items);
-                      }else{
-                        s.showToast('invalid ID');
-                      }
-                    } catch (e) {
-                      print('can not write $e');
-                    }
-
-
+                  onPressed: () {
+                    addItemMethod(s);
                   },
                   child: Text(
                     'Add Item',
@@ -213,25 +182,25 @@ class _AddItemPageState extends State<AddItemPage> {
                   ),
                 ),
               ),
-              // //////////////////////////////////////////////////////////////////
-              // /// read Button
-              // Container(
-              //   width: double.infinity,
-              //   margin: EdgeInsets.symmetric(horizontal: 20),
-              //   decoration: BoxDecoration(
-              //       color: CustomColors.whiteRed,
-              //       borderRadius: BorderRadius.circular(10)),
-              //   child: FlatButton(
-              //     onPressed: () {
-              //       s.reaItemsFromStorage();
-              //     },
-              //     child: Text(
-              //       'read Item',
-              //       style: TextStyle(
-              //           color: Colors.white, fontWeight: FontWeight.bold),
-              //     ),
-              //   ),
-              // ),
+              //////////////////////////////////////////////////////////////////
+              /// read Button
+              Container(
+                width: double.infinity,
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                    color: CustomColors.whiteRed,
+                    borderRadius: BorderRadius.circular(10)),
+                child: FlatButton(
+                  onPressed: () {
+                    s.readItemsFromStorage();
+                  },
+                  child: Text(
+                    'read Item',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
               // //////////////////////////////////////////////////////////////////
               /// delete Button
               Container(
@@ -256,6 +225,41 @@ class _AddItemPageState extends State<AddItemPage> {
         );
       },
     );
+  }
+
+
+  void addItemMethod(s) async {
+    await Permission.storage.request();
+
+    Directory path = await getApplicationDocumentsDirectory();
+    File file = File(path.path + "/khana_storage.json");
+
+    if (!file.existsSync()) {
+      file.create();
+      String data = '{\"data\": [],\"list\": []}';
+      file.writeAsString(data);
+    }
+
+    try {
+      String data = await file.readAsString();
+      if(!data.contains(_ItemID.text)){
+        Map items = {
+          '\"id\"': "\"${_ItemID.text.trim()}\"",
+          '\"name\"': "\"${_ItemName.text.trim()}\"",
+          '\"des\"': "\"${_ItemDescription.text.trim()}\"",
+          '\"numOfPieces\"': numberOfItem,
+          '\"numOfLeftPieces\"': numberOfItem,
+          '\"price\"': priceOfItem,
+          '\"image\"': _image != null ? "\"${_image.path}\"" : "\"\"",
+        };
+        s.addItemToStorage(items);
+      }else{
+        s.showToast('invalid ID');
+      }
+    } catch (e) {
+      print('can not write $e');
+    }
+
   }
 
   CircleAvatar CustomButton({IconData icon, Color color, bool num}) {

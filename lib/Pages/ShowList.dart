@@ -11,22 +11,19 @@ class ShowListPage extends StatefulWidget {
 }
 
 class _ShowListPageState extends State<ShowListPage> {
-  List items = [
-    {
-      'name': 'Sulaiman Ahmed',
-      'location': 'baghdad',
-      'price': 20,
-      'date': '29, Oct',
-      'id': 'es001'
-    },
-    {
-      'name': 'Qzwini',
-      'location': 'baghdad',
-      'price': 50,
-      'date': '30, Oct',
-      'id': 'ob001'
-    },
-  ];
+  List items = [];
+
+  SettingsController settingsController = SettingsController();
+
+  fetchData() async {
+    items = await settingsController.readListItemsFromStorage();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,19 +33,19 @@ class _ShowListPageState extends State<ShowListPage> {
         bool lang = s.lang;
         return Scaffold(
           appBar: appbar('Show List', context),
-          body: SingleChildScrollView(
-            physics: BouncingScrollPhysics(),
-            child: Column(children: [
-              ListView.builder(
+          body: FutureBuilder(
+            future: fetchData(),
+            builder: (BuildContext context, snap){
+              return ListView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: items.length,
+                physics: BouncingScrollPhysics(),
+                itemCount: items.length ?? 1,
                 itemBuilder: (BuildContext context, int index) {
                   return CardBlock(index);
                 },
-              )
-            ]),
-          ),
+              );
+            },
+          )
         );
       },
     );
@@ -76,8 +73,8 @@ class _ShowListPageState extends State<ShowListPage> {
             ),
             SizedBox(height: 20),
             Text(
-              items[index]['price'].toString(),
-              style: TextStyle(color: CustomColors.darkGray,fontSize: 17),
+              30.toString(),
+              style: TextStyle(color: CustomColors.darkGray, fontSize: 17),
             ),
           ],
         ),
@@ -89,7 +86,7 @@ class _ShowListPageState extends State<ShowListPage> {
             Text(items[index]['id'],
                 style: TextStyle(color: CustomColors.black2)),
             SizedBox(height: 20),
-            Text(items[index]['date'],
+            Text('30/10',
                 style: TextStyle(color: CustomColors.darkGray)),
           ],
         ),

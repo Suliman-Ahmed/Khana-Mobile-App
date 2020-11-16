@@ -107,6 +107,9 @@ class SettingsController extends GetxController {
 
   //////////////////////////////////////////////////////////////////////////////
   /// Storage Functions
+  //////////////////////////////////////////////////////////////////////////////
+  /// Add
+  /// Add Item
   void addItemToStorage(items) async {
     await Permission.storage.request();
 
@@ -115,30 +118,65 @@ class SettingsController extends GetxController {
 
     if (!file.existsSync()) {
       file.create();
-      String data = '{\"data\": []}';
+      String data = '{\"data\": [],\"list\": []}';
       file.writeAsString(data);
     }
 
     try {
       String data = await file.readAsString();
-      data = data.replaceAll(']', ',${items.toString()}]');
+      if (data == '{\"data\": [],\"list\": []}') {
+        data = data.replaceFirst(']', '${items.toString()}]');
+      } else
+        data = data.replaceFirst(']', ',${items.toString()}]');
+
       file.writeAsString(data);
-      print(data);
+      // print(data);
     } catch (e) {
       print('can not write $e');
     }
   }
 
-  Future<List<dynamic>> reaItemsFromStorage() async {
-    List items = List();
+  /// Add Item
+  void addListItemToStorage(items) async {
     await Permission.storage.request();
+
+    Directory path = await getApplicationDocumentsDirectory();
+    File file = File(path.path + "/khana_storage.json");
+
+    if (!file.existsSync()) {
+      file.create();
+      String data = '{\"data\": [],\"list\": []}';
+      file.writeAsString(data);
+    }
+
+    try {
+      String data = await file.readAsString();
+      if (data.contains('\"list\": []}')) {
+        data = data.replaceFirst(']', '${items.toString()}]', data.length - 2);
+      } else
+        data = data.replaceFirst(']', ',${items.toString()}]', data.length - 2);
+
+      file.writeAsString(data);
+      // print(data);
+    } catch (e) {
+      print('can not write $e');
+    }
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+  /// Read
+  /// Read Item
+  Future<List<dynamic>> readItemsFromStorage() async {
+    await Permission.storage.request();
+    List items = List();
     Directory path = await getApplicationDocumentsDirectory();
     File file = File(path.path + "/khana_storage.json");
     try {
       file.open(mode: FileMode.read);
       String data = await file.readAsString();
-      data = data.replaceFirst(',', '');
-      var decodedJson = jsonDecode(data)['data'];
+      data = data.replaceFirst('[,', '[');
+      var decodedJson = json.decode(data)['data'];
+
       items = decodedJson != null ? List.from(decodedJson) : null;
       print(items);
     } catch (e) {
@@ -148,22 +186,55 @@ class SettingsController extends GetxController {
     return items;
   }
 
+  /// Read List
+  Future<List<dynamic>> readListItemsFromStorage() async {
+    await Permission.storage.request();
+    List items = List();
+    Directory path = await getApplicationDocumentsDirectory();
+    File file = File(path.path + "/khana_storage.json");
+    try {
+      String data = await file.readAsString();
+      data.replaceAll('[,', '[');
+      var decodedJson = json.decode(data)['list'];
+
+      items = decodedJson != null ? List.from(decodedJson) : null;
+      print(items);
+    } catch (e) {
+      print('Can not Read $e');
+      items = [];
+    }
+    return items;
+  }
+
+  /// Delete Item
   void cleanData() async {
     await Permission.storage.request();
     Directory path = await getApplicationDocumentsDirectory();
     File file = File(path.path + "/khana_storage.json");
-    file.writeAsString('{\"data\": []}');
+    file.writeAsString('{\"data\": [],\"list\": []}');
   }
 
-  void showToast(msg){
-    Fluttertoast.showToast(
-        msg: msg,
-        toastLength: Toast.LENGTH_SHORT,
-    );
+  /// Delete List
+  void cleanList() async {
+    await Permission.storage.request();
+    Directory path = await getApplicationDocumentsDirectory();
+    File file = File(path.path + "/khana_storage.json");
+    String data = await file.readAsString();
+    String startText = data.substring(0, data.indexOf('list'));
+    startText += 'list\": []}';
+    print(startText);
+    // data.replaceFirst('[', '[', data.indexOf('list'));
+    file.writeAsString(startText);
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  /// Firebase Function
+  /// Common Function
+  void showToast(msg) {
+    Fluttertoast.showToast(
+      msg: msg,
+      toastLength: Toast.LENGTH_SHORT,
+    );
+  }
 
   //////////////////////////////////////////////////////////////////////////////
   /// Theme
