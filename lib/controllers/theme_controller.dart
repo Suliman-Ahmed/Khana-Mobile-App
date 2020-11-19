@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:khana_mobile_application/controllers/Item.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -23,6 +22,7 @@ class SettingsController extends GetxController {
     getThemeModeFromDataBase();
     getlocaleFromDataBase();
     getPrefColorFromDataBase();
+    createFile();
   }
 
   Box settings;
@@ -105,6 +105,18 @@ class SettingsController extends GetxController {
     setPrefColor(prefColor);
   }
 
+  void createFile() async{
+    await Permission.storage.request();
+
+    Directory path = await getApplicationDocumentsDirectory();
+    File file = File(path.path + "/khana_storage.json");
+    if (!file.existsSync()) {
+      file.create();
+      String data = '{\"data\": [],\"list\": []}';
+      file.writeAsString(data);
+    }
+  }
+
   //////////////////////////////////////////////////////////////////////////////
   /// Storage Functions
   //////////////////////////////////////////////////////////////////////////////
@@ -178,7 +190,6 @@ class SettingsController extends GetxController {
       var decodedJson = json.decode(data)['data'];
 
       items = decodedJson != null ? List.from(decodedJson) : null;
-      print(items);
     } catch (e) {
       print('Can not Read $e');
       items = [];
@@ -198,7 +209,6 @@ class SettingsController extends GetxController {
       var decodedJson = json.decode(data)['list'];
 
       items = decodedJson != null ? List.from(decodedJson) : null;
-      print(items);
     } catch (e) {
       print('Can not Read $e');
       items = [];
@@ -222,7 +232,6 @@ class SettingsController extends GetxController {
     String data = await file.readAsString();
     String startText = data.substring(0, data.indexOf('list'));
     startText += 'list\": []}';
-    print(startText);
     // data.replaceFirst('[', '[', data.indexOf('list'));
     file.writeAsString(startText);
   }

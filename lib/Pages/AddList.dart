@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:intl/intl.dart';
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:get/get.dart';
@@ -24,6 +23,12 @@ class _AddListPageState extends State<AddListPage> {
   TextEditingController _firstID = TextEditingController();
 
   List<TextEditingController> itemsID = [];
+
+  @override
+  void initState() {
+    super.initState();
+    itemsID.add(_firstID);
+  }
 
   int numberOfItem = 1;
   int priceOfItem = 1;
@@ -123,37 +128,31 @@ class _AddListPageState extends State<AddListPage> {
                         ),
                         ////////////////////////////////////////////////////////
                         /// Plus Button
-                        (itemsID.length == 0)
-                            ? Expanded(
-                                child: CustomButton(
-                                    icon: Feather.plus,
-                                    color: CustomColors.green,
-                                    function: () {
-                                      setState(() {
-                                        print(
-                                            "Text = (${itemsID.length == 0 ? _firstID.text : itemsID[index].text})");
-                                        TextEditingController item =
-                                            TextEditingController();
-                                        itemsID.add(itemsID.length == 0
-                                            ? _firstID
-                                            : item);
-                                      });
-                                    }),
-                              )
-                            : SizedBox(),
+                        // (itemsID.length == 0)
+                        //     ? Expanded(
+                        //         child: CustomButton(
+                        //             icon: Feather.plus,
+                        //             color: CustomColors.green,
+                        //             function: () {
+                        //               setState(() {
+                        //                 print(
+                        //                     "Text = (${itemsID.length == 0 ? _firstID.text : itemsID[index].text})");
+                        //                 TextEditingController item =
+                        //                     TextEditingController();
+                        //                 itemsID.add(itemsID.length == 0
+                        //                     ? _firstID
+                        //                     : item);
+                        //               });
+                        //             }),
+                        //       )
+                        //     : SizedBox(),
                         (index == itemsID.length - 1)
                             ? Expanded(
                                 child: CustomButton(
                                     icon: Feather.plus,
                                     color: CustomColors.green,
                                     function: () {
-                                      setState(() {
-                                        print(
-                                            "Text = (${itemsID.length == 0 ? _firstID.text : itemsID[index].text})");
-                                        TextEditingController item =
-                                            TextEditingController();
-                                        itemsID.add(item);
-                                      });
+                                      addField(s, index);
                                     }),
                               )
                             : SizedBox(),
@@ -218,12 +217,38 @@ class _AddListPageState extends State<AddListPage> {
     );
   }
 
+  void addField(s, index) async {
+    Directory path = await getApplicationDocumentsDirectory();
+    File file = File(path.path + "/khana_storage.json");
+
+    try {
+      String data = await file.readAsString();
+      data.replaceAll('[,', '[');
+      if (data.contains(itemsID[index].text) && itemsID[index].text != '') {
+        setState(() {
+          print(
+              "Text = (${itemsID.length == 0 ? _firstID.text : itemsID[index].text})");
+          TextEditingController item = TextEditingController();
+          itemsID.add(item);
+        });
+      } else {
+        s.showToast("There is no such this ID");
+      }
+    } catch (e) {}
+  }
+
   void addItemMethod(s) async {
     final DateTime now = DateTime.now();
     final DateFormat formatter = DateFormat('yyyy-MM-dd');
     final String formatted = formatter.format(now);
 
     await Permission.storage.request();
+    List<String> itemsIDList = [];
+
+    List ITEMS = await s.readItemsFromStorage();
+
+    // var it = ITEMS.firstWhere((element) => element['id'] == '1112');
+    int finalPrice = 0;
 
     Directory path = await getApplicationDocumentsDirectory();
     File file = File(path.path + "/khana_storage.json");
@@ -238,29 +263,33 @@ class _AddListPageState extends State<AddListPage> {
       String data = await file.readAsString();
       data.replaceAll('[,', '[');
       var decodedJson = json.decode(data)['data'];
-      print('Before add data');
       if (!data.contains(_listID.text)) {
         for (int i = 0; i < itemsID.length; i++) {
           String decodeData = decodedJson.toString();
           if (decodeData.contains(itemsID[i].text)) {
-            print(decodedJson);
-            List<String> itemsIDList = [];
             for (var i in itemsID) {
               itemsIDList.add(i.text);
             }
-            print('adding data');
-            Map items = {
-              '\"id\"': "\"${_listID.text.trim()}\"",
-              '\"name\"': "\"${_listName.text.trim()}\"",
-              '\"location\"': "\"${_listLocation.text.trim()}\"",
-              '\"date\"': "\"$formatted\"",
-              '\"items\"': '\"${itemsIDList.toString()}\"',
-            };
-            // print(items);
-            print('Complete add data');
-            s.addListItemToStorage(items);
           }
         }
+
+        itemsIDList = itemsIDList.toSet().toList();
+
+        var item;
+        itemsIDList.forEach((it) {
+          item = ITEMS.firstWhere((e) => e['id'] == it);
+          finalPrice += item['price'];
+        });
+        Map items = {
+          '\"id\"': "\"${_listID.text.trim()}\"",
+          '\"name\"': "\"${_listName.text.trim()}\"",
+          '\"location\"': "\"${_listLocation.text.trim()}\"",
+          '\"date\"': "\"$formatted\"",
+          '\"price\"': "\"$finalPrice\"",
+          '\"items\"': '\"${itemsIDList.toString()}\"',
+        };
+        // print(items);
+        s.addListItemToStorage(items);
       } else {
         s.showToast('invalid ID');
       }

@@ -15,8 +15,11 @@ class _ShowListPageState extends State<ShowListPage> {
 
   SettingsController settingsController = SettingsController();
 
+  List searchedItem = [];
+
   fetchData() async {
     items = await settingsController.readListItemsFromStorage();
+    searchedItem = await settingsController.readItemsFromStorage();
   }
 
   @override
@@ -32,21 +35,20 @@ class _ShowListPageState extends State<ShowListPage> {
       builder: (s) {
         bool lang = s.lang;
         return Scaffold(
-          appBar: appbar('Show List', context),
-          body: FutureBuilder(
-            future: fetchData(),
-            builder: (BuildContext context, snap){
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: BouncingScrollPhysics(),
-                itemCount: items.length ?? 1,
-                itemBuilder: (BuildContext context, int index) {
-                  return CardBlock(index);
-                },
-              );
-            },
-          )
-        );
+            appBar: appbar('Show List', context),
+            body: FutureBuilder(
+              future: fetchData(),
+              builder: (BuildContext context, snap) {
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: BouncingScrollPhysics(),
+                  itemCount: items.length ?? 1,
+                  itemBuilder: (BuildContext context, int index) {
+                    return CardBlock(index);
+                  },
+                );
+              },
+            ));
       },
     );
   }
@@ -73,7 +75,7 @@ class _ShowListPageState extends State<ShowListPage> {
             ),
             SizedBox(height: 20),
             Text(
-              30.toString(),
+              '${items[index]['price']} \$',
               style: TextStyle(color: CustomColors.darkGray, fontSize: 17),
             ),
           ],
@@ -86,7 +88,7 @@ class _ShowListPageState extends State<ShowListPage> {
             Text(items[index]['id'],
                 style: TextStyle(color: CustomColors.black2)),
             SizedBox(height: 20),
-            Text('30/10',
+            Text(items[index]['date'],
                 style: TextStyle(color: CustomColors.darkGray)),
           ],
         ),

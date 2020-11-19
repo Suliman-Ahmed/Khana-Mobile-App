@@ -102,6 +102,7 @@ class _AddItemPageState extends State<AddItemPage> {
                 Expanded(
                   child: Column(children: [
                     Text("Number of Items", textAlign: TextAlign.center),
+                    SizedBox(height: 20),
                     Container(
                       margin: EdgeInsets.symmetric(horizontal: 30),
                       child: Row(
@@ -127,6 +128,7 @@ class _AddItemPageState extends State<AddItemPage> {
                   child: Column(
                     children: [
                       Text("Price in dollar", textAlign: TextAlign.center),
+                      SizedBox(height: 20),
                       Container(
                         margin: EdgeInsets.symmetric(horizontal: 30),
                         child: Row(
@@ -157,11 +159,13 @@ class _AddItemPageState extends State<AddItemPage> {
                 onTap: () {
                   _imgFromGallery();
                 },
-                child: Container(
-                  width: 50,
-                  height: 50,
-                  child: SvgPicture.asset("assets/img/upload_image.svg"),
-                ),
+                child: _image == null
+                    ? Container(
+                        width: 50,
+                        height: 50,
+                        child: SvgPicture.asset("assets/img/upload_image.svg"))
+                    : Image.file(_image,
+                        width: 100, height: 100, fit: BoxFit.cover),
               ),
               //////////////////////////////////////////////////////////////////
               /// Add Button
@@ -182,51 +186,50 @@ class _AddItemPageState extends State<AddItemPage> {
                   ),
                 ),
               ),
-              //////////////////////////////////////////////////////////////////
-              /// read Button
-              Container(
-                width: double.infinity,
-                margin: EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                    color: CustomColors.whiteRed,
-                    borderRadius: BorderRadius.circular(10)),
-                child: FlatButton(
-                  onPressed: () {
-                    s.readItemsFromStorage();
-                  },
-                  child: Text(
-                    'read Item',
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
               // //////////////////////////////////////////////////////////////////
-              /// delete Button
-              Container(
-                width: double.infinity,
-                margin: EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                    color: CustomColors.whiteRed,
-                    borderRadius: BorderRadius.circular(10)),
-                child: FlatButton(
-                  onPressed: () {
-                    s.cleanData();
-                  },
-                  child: Text(
-                    'delete Item',
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
+              // /// read Button
+              // Container(
+              //   width: double.infinity,
+              //   margin: EdgeInsets.symmetric(horizontal: 20),
+              //   decoration: BoxDecoration(
+              //       color: CustomColors.whiteRed,
+              //       borderRadius: BorderRadius.circular(10)),
+              //   child: FlatButton(
+              //     onPressed: () {
+              //       s.readItemsFromStorage();
+              //     },
+              //     child: Text(
+              //       'read Item',
+              //       style: TextStyle(
+              //           color: Colors.white, fontWeight: FontWeight.bold),
+              //     ),
+              //   ),
+              // ),
+              // // //////////////////////////////////////////////////////////////////
+              // /// delete Button
+              // Container(
+              //   width: double.infinity,
+              //   margin: EdgeInsets.symmetric(horizontal: 20),
+              //   decoration: BoxDecoration(
+              //       color: CustomColors.whiteRed,
+              //       borderRadius: BorderRadius.circular(10)),
+              //   child: FlatButton(
+              //     onPressed: () {
+              //       s.cleanData();
+              //     },
+              //     child: Text(
+              //       'delete Item',
+              //       style: TextStyle(
+              //           color: Colors.white, fontWeight: FontWeight.bold),
+              //     ),
+              //   ),
+              // ),
             ]),
           ),
         );
       },
     );
   }
-
 
   void addItemMethod(s) async {
     await Permission.storage.request();
@@ -242,7 +245,7 @@ class _AddItemPageState extends State<AddItemPage> {
 
     try {
       String data = await file.readAsString();
-      if(!data.contains(_ItemID.text)){
+      if (!data.contains(_ItemID.text)) {
         Map items = {
           '\"id\"': "\"${_ItemID.text.trim()}\"",
           '\"name\"': "\"${_ItemName.text.trim()}\"",
@@ -253,13 +256,12 @@ class _AddItemPageState extends State<AddItemPage> {
           '\"image\"': _image != null ? "\"${_image.path}\"" : "\"\"",
         };
         s.addItemToStorage(items);
-      }else{
+      } else {
         s.showToast('invalid ID');
       }
     } catch (e) {
       print('can not write $e');
     }
-
   }
 
   CircleAvatar CustomButton({IconData icon, Color color, bool num}) {
@@ -323,7 +325,7 @@ class _AddItemPageState extends State<AddItemPage> {
     return CircleAvatar(
         backgroundColor: color,
         child: InkWell(
-          onTap: (){
+          onTap: () {
             setState(() {
               _ItemID.text = '';
               _ItemName.text = '';

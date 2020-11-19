@@ -125,30 +125,29 @@ class _SignInPageState extends State<SignInPage> {
                 decoration: BoxDecoration(
                     color: Color(0xFF43A0E7),
                     borderRadius: BorderRadius.circular(10)),
-                child: isLoading
-                    ? Container(
-                        width: 30,
-                        height: 30,
-                        child: CircularProgressIndicator())
-                    : FlatButton(
-                        onPressed: () {
-                          setState(() {
-                            isLoading = true;
-                          });
-                          context.read<FirebaseAuthServices>().signIn(
-                                email: email.text.trim(),
-                                password: pass.text.trim(),
-                              );
-                        },
-                        child: Text(
-                          'login',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18),
-                        ),
-                      ),
-              )
+                child: FlatButton(
+                  onPressed: () {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    context.read<FirebaseAuthServices>().signIn(
+                          email: email.text.trim(),
+                          password: pass.text.trim(),
+                        );
+                  },
+                  child: Text(
+                    'login'.toUpperCase(),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18),
+                  ),
+                ),
+              ),
+              isLoading
+                  ? Container(
+                      width: 30, height: 30, child: CircularProgressIndicator())
+                  : SizedBox(),
             ],
           ),
         ),
