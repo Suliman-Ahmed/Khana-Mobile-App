@@ -216,6 +216,27 @@ class SettingsController extends GetxController {
     return items;
   }
 
+  /// Number of Items
+  Future<int> numberOfItems() async{
+    int number;
+    List items = List();
+    Directory path = await getApplicationDocumentsDirectory();
+    File file = File(path.path + "/khana_storage.json");
+    try {
+      file.open(mode: FileMode.read);
+      String data = await file.readAsString();
+      data = data.replaceFirst('[,', '[');
+      var decodedJson = json.decode(data)['data'];
+      items = decodedJson != null ? List.from(decodedJson) : null;
+      number = items.length;
+    } catch (e) {
+      print('Can not Read $e');
+      items = [];
+      number = 0;
+    }
+    return number;
+  }
+
   /// Delete Item
   void cleanData() async {
     await Permission.storage.request();
