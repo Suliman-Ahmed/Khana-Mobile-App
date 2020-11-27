@@ -105,7 +105,7 @@ class SettingsController extends GetxController {
     setPrefColor(prefColor);
   }
 
-  void createFile() async{
+  void createFile() async {
     await Permission.storage.request();
 
     Directory path = await getApplicationDocumentsDirectory();
@@ -142,10 +142,13 @@ class SettingsController extends GetxController {
         data = data.replaceFirst(']', ',${items.toString()}]');
 
       file.writeAsString(data);
+      showToast('Adding successfully');
       // print(data);
     } catch (e) {
       print('can not write $e');
     }
+
+    update();
   }
 
   /// Add Item
@@ -169,10 +172,12 @@ class SettingsController extends GetxController {
         data = data.replaceFirst(']', ',${items.toString()}]', data.length - 2);
 
       file.writeAsString(data);
+      showToast('Adding successfully');
       // print(data);
     } catch (e) {
       print('can not write $e');
     }
+    update();
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -194,6 +199,7 @@ class SettingsController extends GetxController {
       print('Can not Read $e');
       items = [];
     }
+    update();
     return items;
   }
 
@@ -213,11 +219,12 @@ class SettingsController extends GetxController {
       print('Can not Read $e');
       items = [];
     }
+    update();
     return items;
   }
 
   /// Number of Items
-  Future<int> numberOfItems() async{
+  Future<int> numberOfItems() async {
     int number;
     List items = List();
     Directory path = await getApplicationDocumentsDirectory();

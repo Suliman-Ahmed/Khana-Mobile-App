@@ -39,7 +39,10 @@ class _MainPageState extends State<MainPage> {
       builder: (s) {
         bool lang = s.lang;
         return Scaffold(
-          body: pages.elementAt(selectedIndex),
+          body: IndexedStack(
+            index: selectedIndex,
+            children: pages,
+          ),
           bottomNavigationBar: BottomNavigationBar(
             items: bottomItems,
             showUnselectedLabels: false,

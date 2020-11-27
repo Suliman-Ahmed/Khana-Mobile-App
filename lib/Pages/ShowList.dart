@@ -15,11 +15,9 @@ class _ShowListPageState extends State<ShowListPage> {
 
   SettingsController settingsController = SettingsController();
 
-  List searchedItem = [];
-
   fetchData() async {
     items = await settingsController.readListItemsFromStorage();
-    searchedItem = await settingsController.readItemsFromStorage();
+    setState(() {});
   }
 
   @override
@@ -36,18 +34,26 @@ class _ShowListPageState extends State<ShowListPage> {
         bool lang = s.lang;
         return Scaffold(
             appBar: appbar('Show List', context),
-            body: FutureBuilder(
-              future: fetchData(),
-              builder: (BuildContext context, snap) {
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: BouncingScrollPhysics(),
-                  itemCount: items.length ?? 1,
-                  itemBuilder: (BuildContext context, int index) {
-                    return CardBlock(index);
-                  },
-                );
+            body: RefreshIndicator(
+              onRefresh: () async {
+                await fetchData();
               },
+              child: FutureBuilder(
+                future: fetchData(),
+                builder: (BuildContext context, snap) {
+                  if (snap.data != null) {
+                    return CircularProgressIndicator();
+                  }
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: BouncingScrollPhysics(),
+                    itemCount: items.length ?? 1,
+                    itemBuilder: (BuildContext context, int index) {
+                      return CardBlock(index);
+                    },
+                  );
+                },
+              ),
             ));
       },
     );

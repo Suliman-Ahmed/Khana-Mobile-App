@@ -8,19 +8,21 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:khana_mobile_application/UI/CustomColors.dart';
 import 'package:khana_mobile_application/Widgets/appbar.dart';
+import 'package:khana_mobile_application/controllers/Item.dart';
 import 'package:khana_mobile_application/controllers/theme_controller.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class AddItemPage extends StatefulWidget {
+
   @override
   _AddItemPageState createState() => _AddItemPageState();
 }
 
 class _AddItemPageState extends State<AddItemPage> {
-  TextEditingController _ItemID = TextEditingController();
-  TextEditingController _ItemName = TextEditingController();
-  TextEditingController _ItemDescription = TextEditingController();
+  final TextEditingController _ItemID = TextEditingController();
+  final TextEditingController _ItemName = TextEditingController();
+  final TextEditingController _ItemDescription = TextEditingController();
   int numberOfItem = 1;
   int priceOfItem = 5;
   File _image;
@@ -40,6 +42,11 @@ class _AddItemPageState extends State<AddItemPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GetX<SettingsController>(
       init: SettingsController(),
@@ -54,7 +61,7 @@ class _AddItemPageState extends State<AddItemPage> {
               //////////////////////////////////////////////////////////////////
               /// Clear Button
               Center(
-                child: clearButton(CustomColors.darkGray, Feather.x),
+                child: clearButton(CustomColors.darkGray, Feather.x, s),
               ),
               SizedBox(height: 20),
               ////////////////////////////////////////////////////////////////
@@ -321,7 +328,7 @@ class _AddItemPageState extends State<AddItemPage> {
             )));
   }
 
-  CircleAvatar clearButton(Color color, IconData icon) {
+  CircleAvatar clearButton(Color color, IconData icon, s) {
     return CircleAvatar(
         backgroundColor: color,
         child: InkWell(

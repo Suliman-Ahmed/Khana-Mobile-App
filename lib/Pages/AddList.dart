@@ -23,12 +23,15 @@ class _AddListPageState extends State<AddListPage> {
   TextEditingController _firstID = TextEditingController();
 
   List<TextEditingController> itemsID = [];
+  List<String> itemsCount = [];
 
   @override
   void initState() {
     super.initState();
     itemsID.add(_firstID);
   }
+
+  var dropdownValue = '1';
 
   int numberOfItem = 1;
   int priceOfItem = 1;
@@ -52,8 +55,7 @@ class _AddListPageState extends State<AddListPage> {
                     icon: Feather.x,
                     color: Color(0xFF999999),
                     function: () {
-                      // TODO: Clear Function
-                      print("Clear Function");
+                      clearList();
                     }),
               ),
               SizedBox(height: 20),
@@ -113,6 +115,13 @@ class _AddListPageState extends State<AddListPage> {
                                     ? _firstID
                                     : itemsID[index])),
                         ////////////////////////////////////////////////////////
+                        /// Number of Items Button
+                        (index == itemsID.length - 1 || index == itemsCount.length)
+                            ? buildDropdownButton(index)
+                            : Text(itemsCount.isNotEmpty
+                                ? itemsCount[index].toString()
+                                : '1'),
+                        ////////////////////////////////////////////////////////
                         /// Minus Button
                         Expanded(
                           child: CustomButton(
@@ -128,24 +137,22 @@ class _AddListPageState extends State<AddListPage> {
                         ),
                         ////////////////////////////////////////////////////////
                         /// Plus Button
-                        // (itemsID.length == 0)
-                        //     ? Expanded(
-                        //         child: CustomButton(
-                        //             icon: Feather.plus,
-                        //             color: CustomColors.green,
-                        //             function: () {
-                        //               setState(() {
-                        //                 print(
-                        //                     "Text = (${itemsID.length == 0 ? _firstID.text : itemsID[index].text})");
-                        //                 TextEditingController item =
-                        //                     TextEditingController();
-                        //                 itemsID.add(itemsID.length == 0
-                        //                     ? _firstID
-                        //                     : item);
-                        //               });
-                        //             }),
-                        //       )
-                        //     : SizedBox(),
+                        (itemsID.length == 0)
+                            ? Expanded(
+                                child: CustomButton(
+                                    icon: Feather.plus,
+                                    color: CustomColors.green,
+                                    function: () {
+                                      setState(() {
+                                        TextEditingController item =
+                                            TextEditingController();
+                                        itemsID.add(itemsID.length == 0
+                                            ? _firstID
+                                            : item);
+                                      });
+                                    }),
+                              )
+                            : SizedBox(),
                         (index == itemsID.length - 1)
                             ? Expanded(
                                 child: CustomButton(
@@ -169,7 +176,6 @@ class _AddListPageState extends State<AddListPage> {
                     color: CustomColors.blue2,
                     borderRadius: BorderRadius.circular(10)),
                 child: FlatButton(
-                  /// TODO: Add List Function
                   onPressed: () => addItemMethod(s),
                   child: Text(
                     'Add List',
@@ -217,6 +223,41 @@ class _AddListPageState extends State<AddListPage> {
     );
   }
 
+  DropdownButton<String> buildDropdownButton(int index) {
+    List<String> numbers = <String>[
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      '10',
+    ];
+    return DropdownButton<String>(
+      value: dropdownValue,
+      elevation: 16,
+      style: TextStyle(color: CustomColors.blue),
+      underline: Container(
+        height: 2,
+        color: CustomColors.blue2,
+      ),
+      onChanged: (String newValue) {
+        setState(() {
+          dropdownValue = newValue;
+        });
+      },
+      items: numbers.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+  }
+
   void addField(s, index) async {
     Directory path = await getApplicationDocumentsDirectory();
     File file = File(path.path + "/khana_storage.json");
@@ -229,6 +270,7 @@ class _AddListPageState extends State<AddListPage> {
           print(
               "Text = (${itemsID.length == 0 ? _firstID.text : itemsID[index].text})");
           TextEditingController item = TextEditingController();
+          itemsCount.add(dropdownValue);
           itemsID.add(item);
         });
       } else {
@@ -296,6 +338,8 @@ class _AddListPageState extends State<AddListPage> {
     } catch (e) {
       print('can not write $e');
     }
+
+    clearList();
   }
 
   CircleAvatar CustomButton({IconData icon, Color color, function}) {
@@ -307,6 +351,21 @@ class _AddListPageState extends State<AddListPage> {
             function();
           }),
     );
+  }
+
+  void clearList() {
+    setState(() {
+      _listID.text = '';
+      _listName.text = '';
+      _listLocation.text = '';
+      if (itemsID != null) {
+        itemsID.clear();
+      }
+      if (itemsCount != null) {
+        itemsCount.clear();
+      }
+      dropdownValue = '1';
+    });
   }
 
   Container textField({String hint, TextEditingController controller}) {
