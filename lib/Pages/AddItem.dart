@@ -8,12 +8,14 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:khana_mobile_application/UI/CustomColors.dart';
 import 'package:khana_mobile_application/Widgets/appbar.dart';
-import 'package:khana_mobile_application/controllers/Item.dart';
 import 'package:khana_mobile_application/controllers/theme_controller.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class AddItemPage extends StatefulWidget {
+  final Map editItem;
+
+  const AddItemPage({Key key, this.editItem}) : super(key: key);
 
   @override
   _AddItemPageState createState() => _AddItemPageState();
@@ -28,6 +30,8 @@ class _AddItemPageState extends State<AddItemPage> {
   File _image;
   Timer timer;
   final picker = ImagePicker();
+
+  bool isEditing = false;
 
   _imgFromGallery() async {
     var image = await picker.getImage(source: ImageSource.gallery);
@@ -48,6 +52,18 @@ class _AddItemPageState extends State<AddItemPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.editItem != null) {
+      _ItemID.text = widget.editItem['id'];
+      _ItemName.text = widget.editItem['name'];
+      _ItemDescription.text = widget.editItem['des'];
+      numberOfItem = widget.editItem['numOfPieces'];
+      priceOfItem = widget.editItem['price'];
+      String img = widget.editItem['image'];
+
+      _image = File(img);
+      isEditing = true;
+      setState(() {});
+    }
     return GetX<SettingsController>(
       init: SettingsController(),
       builder: (s) {
@@ -175,7 +191,7 @@ class _AddItemPageState extends State<AddItemPage> {
                         width: 100, height: 100, fit: BoxFit.cover),
               ),
               //////////////////////////////////////////////////////////////////
-              /// Add Button
+              /// Add Button && Edit Button
               Container(
                 width: double.infinity,
                 margin: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
@@ -184,10 +200,10 @@ class _AddItemPageState extends State<AddItemPage> {
                     borderRadius: BorderRadius.circular(10)),
                 child: FlatButton(
                   onPressed: () {
-                    addItemMethod(s);
+                    isEditing ? editItemFromStorage(s) : addItemMethod(s);
                   },
                   child: Text(
-                    'Add Item',
+                    isEditing ? 'Edit Item' : 'Add Item',
                     style: TextStyle(
                         color: Colors.white, fontWeight: FontWeight.bold),
                   ),
@@ -238,6 +254,31 @@ class _AddItemPageState extends State<AddItemPage> {
     );
   }
 
+  //////////////////////////////////////////////////////////////////////////////
+  /// Edit item
+  void editItemFromStorage(s) async {
+    Map items = {
+      '\"id\"': "\"${_ItemID.text.trim()}\"",
+      '\"name\"': "\"${_ItemName.text.trim()}\"",
+      '\"des\"': "\"${_ItemDescription.text.trim()}\"",
+      '\"numOfPieces\"': numberOfItem,
+      '\"numOfLeftPieces\"': numberOfItem,
+      '\"price\"': priceOfItem,
+      '\"image\"': _image != null ? "\"${_image.path}\"" : "\"\"",
+    };
+    int index = 0;
+    List ITEM = await s.readItemsFromStorage();
+    ITEM.forEach((value) {
+      if (value['id'] == widget.editItem['id']) {
+        index = ITEM.indexOf(value);
+        setState(() {});
+      }
+    });
+    ITEM.insert(index, items);
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+  /// Add Item
   void addItemMethod(s) async {
     await Permission.storage.request();
 
@@ -269,6 +310,8 @@ class _AddItemPageState extends State<AddItemPage> {
     } catch (e) {
       print('can not write $e');
     }
+
+    clearMethod();
   }
 
   CircleAvatar CustomButton({IconData icon, Color color, bool num}) {
@@ -333,14 +376,7 @@ class _AddItemPageState extends State<AddItemPage> {
         backgroundColor: color,
         child: InkWell(
           onTap: () {
-            setState(() {
-              _ItemID.text = '';
-              _ItemName.text = '';
-              _ItemDescription.text = '';
-              numberOfItem = 1;
-              priceOfItem = 5;
-              _image = null;
-            });
+            clearMethod();
           },
           child: Icon(
             icon,
@@ -348,6 +384,17 @@ class _AddItemPageState extends State<AddItemPage> {
             size: 20,
           ),
         ));
+  }
+
+  clearMethod() {
+    setState(() {
+      _ItemID.text = '';
+      _ItemName.text = '';
+      _ItemDescription.text = '';
+      numberOfItem = 1;
+      priceOfItem = 5;
+      _image = null;
+    });
   }
 
   Container textField({String hint, TextEditingController controller}) {

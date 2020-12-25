@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:khana_mobile_application/Pages/AddItem.dart';
 import 'package:khana_mobile_application/UI/CustomColors.dart';
 import 'package:khana_mobile_application/Widgets/appbar.dart';
 import 'package:khana_mobile_application/controllers/theme_controller.dart';
@@ -21,6 +22,7 @@ class _ShowItemsPageState extends State<ShowItemsPage> {
 
   fetchData() async {
     items = await settingsController.readItemsFromStorage();
+    setState(() {});
   }
 
   @override
@@ -46,13 +48,18 @@ class _ShowItemsPageState extends State<ShowItemsPage> {
                     child: Text("No Data"),
                   );
                 }
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: BouncingScrollPhysics(),
-                  itemCount: items.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return CardBlock(index);
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    fetchData();
                   },
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: BouncingScrollPhysics(),
+                    itemCount: items.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return CardBlock(index);
+                    },
+                  ),
                 );
               },
             ));
@@ -100,7 +107,8 @@ class _ShowItemsPageState extends State<ShowItemsPage> {
               ],
             ),
             SizedBox(height: 5),
-            // Description
+
+            /// Description
             Text(items[index]['des'],
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: CustomColors.darkGray)),
@@ -108,9 +116,11 @@ class _ShowItemsPageState extends State<ShowItemsPage> {
             ////////////////////////////////////////////////////////////////////
             /// Indicator
             LinearPercentIndicator(
-              trailing: Text('${items[index]['numOfLeftPieces']} / ${items[index]['numOfPieces']}'),
+              trailing: Text(
+                  '${items[index]['numOfLeftPieces']} / ${items[index]['numOfPieces']}'),
               lineHeight: 10,
-              percent: items[index]['numOfLeftPieces'] / items[index]['numOfPieces'],
+              percent:
+                  items[index]['numOfLeftPieces'] / items[index]['numOfPieces'],
               backgroundColor: CustomColors.blue2,
               progressColor: CustomColors.white,
             ),
@@ -118,10 +128,18 @@ class _ShowItemsPageState extends State<ShowItemsPage> {
         ),
         ////////////////////////////////////////////////////////////////////////
         /// Edit pin
-        trailing: Container(
-          width: 25,
-          height: 25,
-          child: SvgPicture.asset('assets/img/edit_pin.svg'),
+        trailing: InkWell(
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => AddItemPage(editItem: items[index])));
+          },
+          child: Container(
+            width: 25,
+            height: 25,
+            child: SvgPicture.asset('assets/img/edit_pin.svg'),
+          ),
         ),
       ),
     );

@@ -147,7 +147,7 @@ class SettingsController extends GetxController {
     } catch (e) {
       print('can not write $e');
     }
-
+    readItemsFromStorage();
     update();
   }
 
@@ -177,6 +177,8 @@ class SettingsController extends GetxController {
     } catch (e) {
       print('can not write $e');
     }
+    readListItemsFromStorage();
+    numberOfItems();
     update();
   }
 
@@ -244,7 +246,7 @@ class SettingsController extends GetxController {
     return number;
   }
 
-  /// Delete Item
+  /// Delete Items
   void cleanData() async {
     await Permission.storage.request();
     Directory path = await getApplicationDocumentsDirectory();
